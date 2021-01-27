@@ -1,0 +1,75 @@
+.POSIX:
+.SUFFIXES:
+.SUFFIXES: .c .o .uto
+
+VERSION    = 1.0.0
+
+CC         = @CC@
+CCOV       = gcov
+CFLAGS     = @CFLAGS@
+CFLAGS_COV = @CFLAGS_COV@
+CFLAGS_SAN = @CFLAGS_SAN@
+INCLUDEDIR = @PREFIX@/include
+LD         = @LD@
+LIBDIR     = @PREFIX@/lib
+PREFIX     = @PREFIX@
+
+.PHONY: all
+all: libcstring.a
+all: test_readme
+all: cstring.coverage
+
+libcstring.a: cstring.o
+	$(LD) -r $^ -o $@
+
+test_readme: README.md libcstring.a
+	awk '/```c/{ C=1; next } /```/{ C=0 } C' README.md | sed -e 's#libcstring/##' > test_readme.c
+	$(CC) $(CFLAGS) $(CFLAGS_SAN) -I. test_readme.c cstring.c -o $@
+	./$@
+
+.c.o:
+	$(CC) $(CFLAGS) -DNDEBUG -c $< -o $@
+
+.c.uto:
+	$(CC) $(CFLAGS) $(CFLAGS_COV) $(CFLAGS_SAN) -I. -c $^ -o $@
+
+cstring.coverage: cstring.uto tests/test_cstring.uto tests/memory_shim.o
+	$(CC) $(CFLAGS) $(CFLAGS_COV) $(CFLAGS_SAN) -I. $^ -o $@
+	./$@
+	$(CCOV) cstring.c
+	! grep "#####" cstring.c.gcov
+
+libcstring.pc:
+	( echo 'Name: libcstring' ;\
+	echo 'Version: $(VERSION)' ;\
+	echo 'Description: String Object Implementation in C' ;\
+	echo 'prefix=$(PREFIX)' ;\
+	echo 'exec_prefix=$${prefix}' ;\
+	echo 'includedir=$${prefix}/include' ;\
+	echo 'libdir=$${prefix}/lib' ;\
+	echo 'Cflags: -I$${includedir}' ;\
+	echo 'Libs: -L$${libdir} -lcstring' ) > $@
+
+.PHONY: install
+install: cstring.h libcstring.a libcstring.pc
+	mkdir -p $(INCLUDEDIR)/libcstring
+	mkdir -p $(LIBDIR)/pkgconfig
+	install -m644 cstring.h $(INCLUDEDIR)/libcstring/cstring.h
+	install -m644 libcstring.a $(LIBDIR)/libcstring.a
+	install -m644 libcstring.pc $(LIBDIR)/pkgconfig/libcstring.pc
+
+.PHONY: uninstall
+uninstall:
+	rm -f $(INCLUDEDIR)/libcstring/cstring.h
+	rm -f $(LIBDIR)/libcstring.a
+	rm -f $(LIBDIR)/pkgconfig/libcstring.pc
+
+.PHONY: clean
+clean:
+	rm -rf *.o **/*.o *.uto **/*.uto *.gc?? **/*.gc?? *.coverage
+	rm -f libcstring.a libcstring.pc
+	rm -f test_readme*
+
+.PHONY: distclean
+distclean: clean
+	rm -f Makefile config.status
