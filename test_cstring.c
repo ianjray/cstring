@@ -11,6 +11,30 @@ int main(void)
     struct string *sub = NULL;
     char *str = NULL;
 
+    string_append_buffer(NULL, "foo", 1);
+    string_append_c_str(NULL, "foo");
+    string_append_fill(NULL, 3, 'f');
+    assert(0 == string_at(NULL, 0));
+    assert(0 == string_back(NULL));
+    assert(NULL == string_c_str(NULL));
+    assert(NULL == string_c_str_move(NULL));
+    assert(0 == string_capacity(NULL));
+    string_clear(NULL);
+    string_delete(NULL);
+    assert(string_empty(NULL));
+    string_erase(NULL, 1, 2);
+    string_insert_buffer(NULL, 1, "foo", 1);
+    string_insert_c_str(NULL, 1, "foo");
+    string_insert_fill(NULL, 1, 3, 'f');
+    string_pop_back(NULL);
+    string_push_back(NULL, 'f');
+    string_reserve(NULL, 8);
+    assert(0 == string_size(NULL));
+    s = string_substr(NULL, 2, 3);
+    assert(s);
+    assert(string_empty(s));
+    string_delete(s);
+
     string_allocator_set(realloc, free);
 
     s = string_new();
