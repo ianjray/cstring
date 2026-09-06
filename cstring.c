@@ -16,6 +16,10 @@
 /// Arbitrary choice.
 #define SSO_SIZE 8
 
+#ifndef SIZE_MAX
+#define SIZE_MAX ((size_t)-1)
+#endif
+
 struct string {
     /// Capacity of buffer (excluding NUL terminator).
     size_t cap;
