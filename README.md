@@ -16,7 +16,7 @@ The API is intentionally rather minimal, and the underlying storage is compatibl
 ```c
 #include <assert.h>
 #include <errno.h>
-#include <libcstring/cstring.h>
+#include <libcstr/cstring.h>
 #include <string.h>
 
 int main(void)

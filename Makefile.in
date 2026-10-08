@@ -15,9 +15,9 @@ LIBDIR     = @PREFIX@/lib
 PREFIX     = @PREFIX@
 
 .PHONY: all
-all: libcstring.a
+all: libcstr.a
 
-libcstring.a: cstring.o
+libcstr.a: cstring.o
 	$(LD) -r $^ -o $@
 
 .c.o:
@@ -26,8 +26,8 @@ libcstring.a: cstring.o
 .c.uto:
 	$(CC) $(CFLAGS) $(CFLAGS_COV) $(CFLAGS_SAN) -I. -c $^ -o $@
 
-test_readme: README.md libcstring.a
-	awk '/```c/{ C=1; next } /```/{ C=0 } C' README.md | sed -e 's#libcstring/##' > test_readme.c
+test_readme: README.md libcstr.a
+	awk '/```c/{ C=1; next } /```/{ C=0 } C' README.md | sed -e 's#libcstr/##' > test_readme.c
 	$(CC) $(CFLAGS) $(CFLAGS_SAN) -I. test_readme.c cstring.c -o $@
 	./$@
 
@@ -37,8 +37,8 @@ cstring.coverage: cstring.uto tests/test_cstring.uto tests/memory_shim.o
 	$(CCOV) cstring.c
 	! grep "#####" cstring.c.gcov
 
-libcstring.pc:
-	( echo 'Name: libcstring' ;\
+libcstr.pc:
+	( echo 'Name: libcstr' ;\
 	echo 'Version: $(VERSION)' ;\
 	echo 'Description: String Object Implementation in C' ;\
 	echo 'prefix=$(PREFIX)' ;\
@@ -46,30 +46,30 @@ libcstring.pc:
 	echo 'includedir=$${prefix}/include' ;\
 	echo 'libdir=$${prefix}/lib' ;\
 	echo 'Cflags: -I$${includedir}' ;\
-	echo 'Libs: -L$${libdir} -lcstring' ) > $@
+	echo 'Libs: -L$${libdir} -lcstr' ) > $@
 
 .PHONY: test
 test: test_readme
 test: cstring.coverage
 
 .PHONY: install
-install: cstring.h libcstring.a libcstring.pc
-	mkdir -p $(DESTDIR)$(INCLUDEDIR)/libcstring
+install: cstring.h libcstr.a libcstr.pc
+	mkdir -p $(DESTDIR)$(INCLUDEDIR)/libcstr
 	mkdir -p $(DESTDIR)$(LIBDIR)/pkgconfig
-	install -m644 cstring.h $(DESTDIR)$(INCLUDEDIR)/libcstring/cstring.h
-	install -m644 libcstring.a $(DESTDIR)$(LIBDIR)/libcstring.a
-	install -m644 libcstring.pc $(DESTDIR)$(LIBDIR)/pkgconfig/libcstring.pc
+	install -m644 cstring.h $(DESTDIR)$(INCLUDEDIR)/libcstr/cstring.h
+	install -m644 libcstr.a $(DESTDIR)$(LIBDIR)/libcstr.a
+	install -m644 libcstr.pc $(DESTDIR)$(LIBDIR)/pkgconfig/libcstr.pc
 
 .PHONY: uninstall
 uninstall:
-	rm -f $(DESTDIR)$(INCLUDEDIR)/libcstring/cstring.h
-	rm -f $(DESTDIR)$(LIBDIR)/libcstring.a
-	rm -f $(DESTDIR)$(LIBDIR)/pkgconfig/libcstring.pc
+	rm -f $(DESTDIR)$(INCLUDEDIR)/libcstr/cstring.h
+	rm -f $(DESTDIR)$(LIBDIR)/libcstr.a
+	rm -f $(DESTDIR)$(LIBDIR)/pkgconfig/libcstr.pc
 
 .PHONY: clean
 clean:
 	rm -f *.o **/*.o *.uto **/*.uto *.gc?? **/*.gc?? *.coverage
-	rm -f libcstring.a libcstring.pc
+	rm -f libcstr.a libcstr.pc
 	rm -f test_readme*
 
 .PHONY: distclean
